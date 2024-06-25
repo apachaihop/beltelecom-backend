@@ -26,7 +26,7 @@ public class DataBase {
         System.out.println(getObjectQueryString(user));
     }
 
-    //Get SQL query string from any object (no array/collection fields pls). For what? Because I can :)
+    //Get SQL query string from any object (no arrays pls). For what? Because I can :)
     public static String getObjectQueryString(Object object) throws IllegalAccessException {
         Class<?> objectClass = object.getClass();
 
@@ -36,29 +36,31 @@ public class DataBase {
                 .filter(field -> !Modifier.isStatic(field.getModifiers())).toArray(Field[]::new);
 
         for (Field field : fields) {
-            sql.append(field.getName()).append(", ");
+            //Change!
+            field.setAccessible(true);
+            if(!(field.get(object) instanceof List<?>))
+                sql.append(field.getName()).append(", ");
         }
 
         sql.delete(sql.length() - 2, sql.length() - 1);
         sql.append("FROM ").append(objectClass.getSimpleName()).append("s WHERE 1=1 ");
 
         for (Field field : fields) {
-            field.setAccessible(true);
+
             Object value = field.get(object);
 
+            if (value == null) continue;
             //TODO: make Network field check
-            if (value != null)
-            {
-                sql.append("AND ").append(field.getName());
+            if (value instanceof List<?>) continue;
 
-                if (value instanceof String val && !val.isBlank()) {
-                    if (val.equals("null"))
-                        sql.append(" IS NULL ");
-                    else
-                        sql.append(" = '").append(value).append("' ");
-                }
-                else sql.append(" = ").append(value).append(' ');
-            }
+            sql.append("AND ").append(field.getName());
+
+            if (value instanceof String val && !val.isBlank()) {
+                if (val.equals("null"))
+                    sql.append(" IS NULL ");
+                else
+                    sql.append(" = '").append(value).append("' ");
+            } else sql.append(" = ").append(value).append(' ');
         }
 
         return sql.toString();
