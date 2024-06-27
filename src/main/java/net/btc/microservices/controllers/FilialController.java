@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/filial")
+@RequestMapping(value = "/filials")
 public class FilialController {
 
     @PersistenceContext
@@ -27,7 +27,7 @@ public class FilialController {
     @PostMapping(value = "/find")
     @ResponseBody
     public ResponseEntity<List<Filial>> findFilial(@RequestBody Filial filial) {
-        List<Filial> filials = (List<Filial>) DataBase.getObjectQueryResult(entityManager, filial);
+        List<Filial> filials = (List<Filial>)DataBase.getObjectQueryResult(entityManager, filial);
 
         return ResponseEntity.ok(filials);
     }

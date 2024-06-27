@@ -79,7 +79,7 @@ public class DataBase {
 
         //entityManager = MicroServicesApplication.getEntityManager();
 
-        Query query = entityManager.createNativeQuery(sql);
+        Query query = entityManager.createNativeQuery(sql, object.getClass());
 
         return query.getResultList();
     }

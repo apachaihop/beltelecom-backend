@@ -17,8 +17,8 @@ public class Network {
     @JsonValue
     public Map<String, String> getNetworkUrl() {
         Map<String, String> networkUrl = new HashMap<>();
-        System.out.println(this.network);
-        System.out.println(this.url);
+//        System.out.println(this.network);
+//        System.out.println(this.url);
         networkUrl.put(this.network, this.url);
         return networkUrl;
     }
