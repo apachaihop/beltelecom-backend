@@ -8,6 +8,7 @@ import net.btc.microservices.entities.Tariff;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 @RestController
@@ -16,10 +17,8 @@ public class TariffController {
 
     @PostMapping
     @ResponseBody
-    public ResponseEntity<Tariff> postTariff(@RequestBody Tariff tariff) {
-        DataBase.persistObject(tariff);
-
-        return ResponseEntity.ok(tariff);
+    public ResponseEntity<Tariff> postTariff(@RequestBody Tariff tariff) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        return ResponseEntity.ok(DataBase.persistObject(tariff));
     }
 
     @PostMapping(value = "/find")

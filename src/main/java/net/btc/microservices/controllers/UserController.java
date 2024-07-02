@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class UserController {
 
     @PostMapping
     @ResponseBody
-    public User postUser(@RequestBody User user) {
+    public ResponseEntity<User> postUser(@RequestBody User user) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         /*
         Input for networks must be like:
         "networks": [
@@ -36,9 +37,7 @@ public class UserController {
 
          */
 
-        DataBase.persistObject(user);
-
-        return user;
+        return ResponseEntity.ok(DataBase.persistObject(user));
     }
 
     @PostMapping(value = "/find")

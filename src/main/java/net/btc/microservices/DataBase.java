@@ -6,7 +6,9 @@ import jakarta.persistence.Query;
 import net.btc.microservices.entities.Network;
 import net.btc.microservices.entities.User;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -100,22 +102,28 @@ public class DataBase {
         return query.getResultList();
     }
 
-    public static void persistObject(Object object) {
+    public static <T> T persistObject(T object) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         entityManager = MicroServicesApplication.getEntityManager();
 
         if (entityManager == null) {
             System.out.println("Error: entityManager is null. Interrupt persisting");
-            return;
+            return null;
         }
 
         entityManager.getTransaction().begin();
 
-        entityManager.persist(object);
+        Class<?> clazz = object.getClass();
+        Constructor<?> constructor = clazz.getDeclaredConstructor(clazz);
+        T instance = (T) constructor.newInstance(object);
+
+        entityManager.persist(instance);
         entityManager.getTransaction().commit();
 
         entityManager.clear();
 
         appealCount.incrementAndGet();
+
+        return instance;
     }
 
 }

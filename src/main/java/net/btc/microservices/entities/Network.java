@@ -19,7 +19,8 @@ public class Network {
         Map<String, String> networkUrl = new HashMap<>();
 //        System.out.println(this.network);
 //        System.out.println(this.url);
-        networkUrl.put(this.network, this.url);
+        networkUrl.put("network", this.network);
+        networkUrl.put("url", this.url);
         return networkUrl;
     }
 
