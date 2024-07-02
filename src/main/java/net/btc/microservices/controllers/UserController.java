@@ -16,9 +16,6 @@ import java.util.List;
 @RequestMapping(value = "/users")
 public class UserController {
 
-    @PersistenceContext
-    EntityManager entityManager;
-
     @PostMapping
     @ResponseBody
     public User postUser(@RequestBody User user) {
@@ -39,7 +36,7 @@ public class UserController {
 
          */
 
-        DataBase.persistObject(entityManager, user);
+        DataBase.persistObject(user);
 
         return user;
     }
@@ -47,7 +44,7 @@ public class UserController {
     @PostMapping(value = "/find")
     @ResponseBody
     public ResponseEntity<List<User>> findUser(@RequestBody User User) {
-        List<User> users = (List<User>) DataBase.getObjectQueryResult(entityManager, User);
+        List<User> users = (List<User>) DataBase.getObjectQueryResult(User);
 
         return ResponseEntity.ok(users);
     }

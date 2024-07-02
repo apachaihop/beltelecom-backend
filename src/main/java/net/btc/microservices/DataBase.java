@@ -1,6 +1,7 @@
 package net.btc.microservices;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import net.btc.microservices.entities.Network;
 import net.btc.microservices.entities.User;
@@ -9,11 +10,18 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 //TODO: implement all access from this class?
 //TODO: try to use local EM
 public class DataBase {
+
+    @PersistenceContext
+    private static EntityManager entityManager;
+    
+    public static AtomicInteger appealCount = new AtomicInteger(0);
 
     public static void main(String[] args) throws IllegalAccessException {
         List<Network> networks = new ArrayList<>();
@@ -38,7 +46,7 @@ public class DataBase {
         for (Field field : fields) {
             //Change!
             field.setAccessible(true);
-            if(!(field.get(object) instanceof List<?>))
+            if(!Collection.class.isAssignableFrom(field.getType()))
                 sql.append(field.getName()).append(", ");
         }
 
@@ -51,7 +59,7 @@ public class DataBase {
 
             if (value == null) continue;
             //TODO: make Network field check
-            if (value instanceof List<?>) continue;
+            if (value instanceof Collection<?>) continue;
 
             sql.append("AND ").append(field.getName());
 
@@ -66,8 +74,10 @@ public class DataBase {
         return sql.toString();
     }
 
-    public static List<?> getObjectQueryResult(EntityManager entityManager, Object object) {
+    public static List<?> getObjectQueryResult(Object object) {
         if (object == null) throw new NullPointerException("Object is null");
+
+        entityManager = MicroServicesApplication.getEntityManager();
 
         String sql;
 
@@ -81,10 +91,16 @@ public class DataBase {
 
         Query query = entityManager.createNativeQuery(sql, object.getClass());
 
+        entityManager.clear();
+
+        appealCount.incrementAndGet();
+
+        System.out.println(appealCount.get());
+
         return query.getResultList();
     }
 
-    public static void persistObject(EntityManager entityManager, Object object) {
+    public static void persistObject(Object object) {
         entityManager = MicroServicesApplication.getEntityManager();
 
         if (entityManager == null) {
@@ -97,7 +113,9 @@ public class DataBase {
         entityManager.persist(object);
         entityManager.getTransaction().commit();
 
-        entityManager.close();
+        entityManager.clear();
+
+        appealCount.incrementAndGet();
     }
 
 }
